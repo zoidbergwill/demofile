@@ -1,6 +1,6 @@
 'use strict';
 
-const BaseEntity = require('./baseentity.js');
+import BaseEntity = require("./baseentity");
 
 /**
  * Represents an in-game team.
@@ -10,7 +10,7 @@ class Team extends BaseEntity {
    * @returns {Player[]} All players in this team
    */
   get members() {
-    return this.getProp('DT_Team', '"player_array"').map(index => this._demo.entities.entities[index]);
+    return this.getProp('DT_Team', '"player_array"').map((index: number) => this._demo.entities.entities[index]);
   }
 
   /**

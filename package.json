@@ -32,7 +32,9 @@
     "varint": "^4.0.0"
   },
   "devDependencies": {
+    "@types/node": "^9.6.6",
+    "jsdoc": "^3.5.5",
     "minami": "^1.2.3",
-    "jsdoc": "^3.5.5"
+    "typescript": "^2.8.3"
   }
 }

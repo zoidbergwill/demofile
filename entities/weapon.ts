@@ -1,8 +1,8 @@
 'use strict';
 
-const BaseEntity = require('./baseentity.js');
+import BaseEntity = require("./baseentity");
 
-var itemDefinitionIndexMap = {
+var itemDefinitionIndexMap : {[index: string]: {[index: string]: string}} = {
   1: {
     itemName: 'Desert Eagle',
     className: 'weapon_deagle',

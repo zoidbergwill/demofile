@@ -1,5 +1,6 @@
 'use strict';
 
+import { demo } from "./demo";
 var EventEmitter = require('events');
 
 /**
@@ -28,8 +29,8 @@ class ConVars extends EventEmitter {
    * @property {string} oldValue - Old value
    */
 
-  listen(demo) {
-    demo.on('net_SetConVar', msg => {
+  listen(demo: demo.DemoFile) {
+    demo.on('net_SetConVar', (msg: any) => {
       for (let cvar of msg.convars.cvars) {
         if (cvar.name == null) {
           continue;

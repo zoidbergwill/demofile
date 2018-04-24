@@ -1,6 +1,6 @@
 'use strict';
 
-const BaseEntity = require('./baseentity.js');
+import BaseEntity = require("./baseentity");
 
 /**
  * Represents the game rules.
@@ -35,7 +35,7 @@ class GameRules extends BaseEntity {
    * @returns {string} 'first', 'second', 'halftime' or 'postgame'
    */
   get phase() {
-    const gamePhases = {
+    const gamePhases: { [index: number]: string } = {
       2: 'first',
       3: 'second',
       4: 'halftime',

@@ -1,12 +1,15 @@
 'use strict';
 
-const BaseEntity = require('./baseentity.js');
+import { demo } from "../demo";
+import BaseEntity = require("./baseentity");
 
 /**
  * Represents an in-game player.
  */
 class Player extends BaseEntity {
-  constructor(demo, index, classId, serialNum, baseline) {
+  clientSlot: number;
+
+  constructor(demo: demo.DemoFile, index: number, classId: number, serialNum: number, baseline: any) {
     super(demo, index, classId, serialNum, baseline);
 
     /**
@@ -187,7 +190,7 @@ class Player extends BaseEntity {
    * @param {string} propName - Name of the property on DT_CSPlayerResource to retrieve
    * @returns {*} Property value
    */
-  resourceProp(propName) {
+  resourceProp(propName: string) {
     let pr = this._demo.entities.getSingleton('DT_CSPlayerResource');
     let values = pr.props[propName];
     return values[Object.keys(values)[this.index]];
@@ -274,7 +277,7 @@ class Player extends BaseEntity {
    * @param {Player} other - Other player entity
    * @returns {bool} Is this player spotted by the other?
    */
-  isSpottedBy(other) {
+  isSpottedBy(other: Player) {
     let bit = other.clientSlot;
     let mask = null;
 
@@ -310,7 +313,7 @@ class Player extends BaseEntity {
    * @param {Player} other - Other player entity
    * @returns {bool} Has this player spotted the other?
    */
-  hasSpotted(other) {
+  hasSpotted(other: Player) {
     return other.isSpottedBy(this);
   }
 
@@ -319,14 +322,14 @@ class Player extends BaseEntity {
    */
   get allSpotted() {
     return this._demo.players
-      .filter(p => p.clientSlot !== this.clientSlot && this.hasSpotted(p));
+      .filter((p: Player) => p.clientSlot !== this.clientSlot && this.hasSpotted(p));
   }
 
   /**
    * @param {Player} other - Other player entity
    * @returns {bool} Whether the two players are on the same team
    */
-  isFriendly(other) {
+  isFriendly(other: Player) {
     let sameTeam = this.teamNumber === other.teamNumber;
     let teammatesAreEnemies = this._demo.conVars.vars['mp_teammates_are_enemies'] || 0;
 

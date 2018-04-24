@@ -1,10 +1,22 @@
 'use strict';
+import * as events from "events";
+
+import { demo } from "../demo";
 
 /**
  * Represents an in-game entity.
  */
-class BaseEntity {
-  constructor(demo, index, classId, serialNum, baseline) {
+class BaseEntity extends events.EventEmitter {
+  _demo: demo.DemoFile;
+  index: number;
+  classId: number;
+  serialNum: number;
+  baseline: any;
+  deleting: boolean;
+  props: any;
+
+  constructor(demo: demo.DemoFile, index: number, classId: number, serialNum: number, baseline: any) {
+    super()
     this._demo = demo;
 
     /**
@@ -41,7 +53,7 @@ class BaseEntity {
    * @returns {*} Property value, `undefined` if non-existent
    * @public
    */
-  getProp(tableName, varName) {
+  getProp(tableName: string, varName: string) {
     var value = this.props[tableName] && this.props[tableName][varName];
 
     if (value === undefined && this.baseline) {
@@ -51,7 +63,7 @@ class BaseEntity {
     }
   }
 
-  updateProp(tableName, varName, newValue) {
+  updateProp(tableName: string, varName: string, newValue: any) {
     if (this.props[tableName] === undefined) {
       this.props[tableName] = { [varName]: newValue };
     } else {
@@ -119,4 +131,4 @@ class BaseEntity {
   }
 }
 
-module.exports = BaseEntity;
+export = BaseEntity;
