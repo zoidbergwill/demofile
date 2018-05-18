@@ -3,6 +3,8 @@ import * as events from "events";
 
 import { demo } from "../demo";
 
+const consts = require('../consts');
+
 /**
  * Represents an in-game entity.
  */
@@ -43,7 +45,8 @@ class BaseEntity extends events.EventEmitter {
      */
     this.deleting = false;
 
-    this.props = baseline || {};
+    this.baseline = baseline;
+    this.props = {};
   }
 
   /**
@@ -98,6 +101,24 @@ class BaseEntity extends events.EventEmitter {
   }
 
   /**
+   * Velocity of the entity.
+   * @returns {object} {x, y, z} speed in each axis
+   */
+  get velocity() {
+    return this.getProp('DT_BaseEntity', 'm_vecVelocity');
+  }
+
+  /**
+   * Speed of the entity.
+   * @returns {number} Speed in game units.
+   */
+  get speed() {
+    var vel = this.velocity;
+    return Math.sqrt(vel.x * vel.x + vel.y * vel.y + vel.z * vel.z);
+  }
+
+  /**
+   * @returns {Entity|null} Owning entity, if it exists
    * @returns {Entity|null} Entity which this entity is moving with, if any
    */
   get moveParent() {
@@ -128,6 +149,21 @@ class BaseEntity extends events.EventEmitter {
     }
 
     return this._demo.entities.teams[teamNum];
+  }
+
+  /**
+   * @returns {string} Name of the model that should be rendered for this entity. (e.g. 'models/Weapons/w_eq_smokegrenade_thrown.mdl')
+   */
+  get modelName() {
+    let modelprecache = this._demo.stringTables.findTableByName('modelprecache');
+    return modelprecache.entries[this.getProp('DT_BaseEntity', 'm_nModelIndex')].entry;
+  }
+
+  /**
+   * @returns {number} Number uniquely identifying this entity. Should be unique throughout the entire demo.
+   */
+  get handle() {
+    return this.index | (this.serialNum << consts.MAX_EDICT_BITS);
   }
 }
 
