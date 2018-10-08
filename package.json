@@ -38,6 +38,7 @@
     "protobufjs": "^6.8.8",
     "ts-assert-exists": "^1.0.4",
     "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
     "typescript": "^3.1.1",
     "utf8": "^3.0.0",
     "varint": "^4.0.0"
