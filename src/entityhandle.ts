@@ -1,4 +1,4 @@
-import { NUM_NETWORKED_EHANDLE_BITS, NETWORKED_EHANDLE_ENT_ENTRY_MASK, MAX_EDICT_BITS } from "./consts";
+import { MAX_EDICT_BITS, NETWORKED_EHANDLE_ENT_ENTRY_MASK, NUM_NETWORKED_EHANDLE_BITS } from "./consts";
 
 export class EntityHandle {
   constructor(public readonly value: number) { }

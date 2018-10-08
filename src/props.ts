@@ -1,12 +1,12 @@
-import _ = require('lodash');
-import assert = require('assert');
-import Long = require('long');
-import { BitStream, CoordType } from './ext/bitbuffer';
-import { ISendProp } from './entities';
-import assertExists from 'ts-assert-exists';
-import { Vector } from './sendtabletypes';
-import { NUM_NETWORKED_EHANDLE_BITS } from './consts';
-import { EntityHandle } from './entityhandle';
+import assert = require("assert");
+import _ = require("lodash");
+import Long = require("long");
+import assertExists from "ts-assert-exists";
+import { NUM_NETWORKED_EHANDLE_BITS } from "./consts";
+import { ISendProp } from "./entities";
+import { EntityHandle } from "./entityhandle";
+import { BitStream, CoordType } from "./ext/bitbuffer";
+import { Vector } from "./sendtabletypes";
 
 export const enum PropType {
   Int = 0,
@@ -16,7 +16,7 @@ export const enum PropType {
   String = 4,
   Array = 5, // An array of the base types (can't be of datatables).
   DataTable = 6,
-  Int64 = 7
+  Int64 = 7,
 }
 
 export const SPROP_UNSIGNED = (1 << 0); // Unsigned integer data.
@@ -50,7 +50,7 @@ export function makeDecoder(sendProp: ISendProp, arrayElementProp: ISendProp | u
   assert(type !== PropType.DataTable);
 
   if (type == PropType.Array) {
-    return makeArrayDecoder(sendProp, assertExists(arrayElementProp, 'array prop with no element prop'));
+    return makeArrayDecoder(sendProp, assertExists(arrayElementProp, "array prop with no element prop"));
   } else {
     return makeValueDecoder(sendProp);
   }
@@ -71,7 +71,7 @@ function makeValueDecoder(sendProp: ISendProp): (bitbuf: BitStream) => PropPrimi
     case PropType.Int64:
       return makeInt64Decoder(sendProp);
     default:
-      throw `Unsupported send prop type ${sendProp.type}`;
+      throw new Error(`Unsupported send prop type ${sendProp.type}`);
   }
 }
 
@@ -79,55 +79,55 @@ function makeIntDecoder(sendProp: ISendProp): (bitbuf: BitStream) => number | En
   if ((sendProp.flags & SPROP_VARINT) !== 0) {
     /*eslint-disable no-unreachable*/
     if ((sendProp.flags & SPROP_UNSIGNED) !== 0) {
-      //return this.bitbuf.readVarint32();
-      throw 'Not implemented'; // TODO
+      // return this.bitbuf.readVarint32();
+      throw new Error("Not implemented"); // TODO
     } else {
-      //return this.bitbuf.readSignedVarint32();
-      throw 'Not implemented'; // TODO
+      // return this.bitbuf.readSignedVarint32();
+      throw new Error("Not implemented"); // TODO
     }
     /*eslint-enable no-unreachable*/
   } else {
     const numBits = sendProp.numBits;
     if ((sendProp.flags & SPROP_UNSIGNED) !== 0) {
       if ((sendProp.flags & SPROP_NOSCALE) !== 0 && sendProp.numBits == NUM_NETWORKED_EHANDLE_BITS) {
-        return bitbuf => new EntityHandle(bitbuf.readUBits(numBits));
+        return (bitbuf) => new EntityHandle(bitbuf.readUBits(numBits));
       } else if (numBits === 1) {
-        return bitbuf => bitbuf.readOneBit();
+        return (bitbuf) => bitbuf.readOneBit();
       } else {
-        return bitbuf => bitbuf.readUBits(numBits);
+        return (bitbuf) => bitbuf.readUBits(numBits);
       }
     } else {
-      return bitbuf => bitbuf.readSBits(numBits);
+      return (bitbuf) => bitbuf.readSBits(numBits);
     }
   }
 }
 
 function makeSpecialFloatDecoder(sendProp: ISendProp): ((bitbuf: BitStream) => number) | undefined {
   if ((sendProp.flags & SPROP_COORD) !== 0) {
-    return bitbuf => bitbuf.readBitCoord();
+    return (bitbuf) => bitbuf.readBitCoord();
   } else if ((sendProp.flags & SPROP_COORD_MP) !== 0) {
-    return bitbuf => bitbuf.readBitCoordMP(CoordType.None);
+    return (bitbuf) => bitbuf.readBitCoordMP(CoordType.None);
   } else if ((sendProp.flags & SPROP_COORD_MP_LOWPRECISION) !== 0) {
-    return bitbuf => bitbuf.readBitCoordMP(CoordType.LowPrecision);
+    return (bitbuf) => bitbuf.readBitCoordMP(CoordType.LowPrecision);
   } else if ((sendProp.flags & SPROP_COORD_MP_INTEGRAL) !== 0) {
-    return bitbuf => bitbuf.readBitCoordMP(CoordType.Integral);
+    return (bitbuf) => bitbuf.readBitCoordMP(CoordType.Integral);
   } else if ((sendProp.flags & SPROP_NOSCALE) !== 0) {
-    return bitbuf => bitbuf.readBitFloat();
+    return (bitbuf) => bitbuf.readBitFloat();
   } else if ((sendProp.flags & SPROP_NORMAL) !== 0) {
-    return bitbuf => bitbuf.readBitNormal();
+    return (bitbuf) => bitbuf.readBitNormal();
   } else if ((sendProp.flags & SPROP_CELL_COORD) !== 0) {
-    return bitbuf => bitbuf.readBitCellCoord(sendProp.numBits, CoordType.None);
+    return (bitbuf) => bitbuf.readBitCellCoord(sendProp.numBits, CoordType.None);
   } else if ((sendProp.flags & SPROP_CELL_COORD_LOWPRECISION) !== 0) {
-    return bitbuf => bitbuf.readBitCellCoord(sendProp.numBits, CoordType.LowPrecision);
+    return (bitbuf) => bitbuf.readBitCellCoord(sendProp.numBits, CoordType.LowPrecision);
   } else if ((sendProp.flags & SPROP_CELL_COORD_INTEGRAL) !== 0) {
-    return bitbuf => bitbuf.readBitCellCoord(sendProp.numBits, CoordType.Integral);
+    return (bitbuf) => bitbuf.readBitCellCoord(sendProp.numBits, CoordType.Integral);
   } else {
     return undefined;
   }
 }
 
 function makeFloatDecoder(sendProp: ISendProp): (bitbuf: BitStream) => number {
-  var special = makeSpecialFloatDecoder(sendProp);
+  let special = makeSpecialFloatDecoder(sendProp);
 
   if (special !== undefined) {
     return special;
@@ -137,7 +137,7 @@ function makeFloatDecoder(sendProp: ISendProp): (bitbuf: BitStream) => number {
   const lowValue = sendProp.lowValue;
   const highValue = sendProp.lowValue;
 
-  return bitbuf => {
+  return (bitbuf) => {
     const interp = bitbuf.readUBits(numBits);
     const fVal = interp / ((1 << numBits) - 1);
     return lowValue + (highValue - lowValue) * fVal;
@@ -148,11 +148,11 @@ function makeVectorDecoder(sendProp: ISendProp): (bitbuf: BitStream) => Vector {
   const floatDecode = makeFloatDecoder(sendProp);
   const isNormal = (sendProp.flags & SPROP_NORMAL) !== 0;
 
-  return bitbuf => {
+  return (bitbuf) => {
     const v = {
       x: floatDecode(bitbuf),
       y: floatDecode(bitbuf),
-      z: 0.0
+      z: 0.0,
     };
 
     if (isNormal) {
@@ -179,15 +179,15 @@ function makeVectorDecoder(sendProp: ISendProp): (bitbuf: BitStream) => Vector {
 function makeVectorXYDecoder(sendProp: ISendProp): (bitbuf: BitStream) => Vector {
   const floatDecode = makeFloatDecoder(sendProp);
 
-  return bitbuf => ({
+  return (bitbuf) => ({
     x: floatDecode(bitbuf),
     y: floatDecode(bitbuf),
-    z: 0.0
+    z: 0.0,
   });
 }
 
 function makeStringDecoder(sendProp: ISendProp): (bitbuf: BitStream) => string {
-  return bitbuf => {
+  return (bitbuf) => {
     const len = bitbuf.readUBits(DT_MAX_STRING_BITS);
     return bitbuf.readString(len);
   };
@@ -197,24 +197,24 @@ function makeInt64Decoder(sendProp: ISendProp): (bitbuf: BitStream) => Long {
   if ((sendProp.flags & SPROP_VARINT) !== 0) {
     /*eslint-disable no-unreachable*/
     if ((sendProp.flags & SPROP_UNSIGNED) !== 0) {
-      //return this.bitbuf.readVarint64();
-      throw 'Not implemented'; // TODO
+      // return this.bitbuf.readVarint64();
+      throw new Error("Not implemented"); // TODO
     } else {
-      //return this.bitbuf.readSignedVarint64();
-      throw 'Not implemented'; // TODO
+      // return this.bitbuf.readSignedVarint64();
+      throw new Error("Not implemented"); // TODO
     }
     /*eslint-enable no-unreachable*/
   } else {
     const highBits = sendProp.numBits - 32;
 
     if ((sendProp.flags & SPROP_UNSIGNED) !== 0) {
-      return bitbuf => {
+      return (bitbuf) => {
         const lowInt = bitbuf.readUBits(32);
         const highInt = bitbuf.readUBits(highBits);
         return Long.fromBits(lowInt, highInt, false);
       };
     } else {
-      return bitbuf => {
+      return (bitbuf) => {
         const neg = bitbuf.readOneBit();
         const lowInt = bitbuf.readUBits(32);
         const highInt = bitbuf.readUBits(highBits - 1);
@@ -229,7 +229,7 @@ function makeArrayDecoder(sendProp: ISendProp, arrayElementProp: ISendProp): (bi
   const numBits = Math.ceil(Math.log2(maxElements)) + 1;
   const elementDecoder = makeValueDecoder(arrayElementProp);
 
-  return bitbuf => {
+  return (bitbuf) => {
     const numElements = bitbuf.readUBits(numBits);
     return new Array(numElements).fill(0).map(() => elementDecoder(bitbuf));
   };

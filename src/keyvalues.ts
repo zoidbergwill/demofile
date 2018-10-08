@@ -10,7 +10,7 @@ const enum KeyValueType {
   CompiledIntByte, // hack to collapse 1 byte ints in the compiled format
   CompiledInt0, // hack to collapse 0 in the compiled format
   CompiledInt1, // hack to collapse 1 in the compiled format
-  NumTypes
+  NumTypes,
 }
 
 interface Color {
@@ -26,22 +26,24 @@ export type KeyValues = KeyValuesPrimitive[] | KeyValuesPrimitive;
 function parseValue(type: KeyValueType, buffer: ByteBuffer): KeyValues {
   switch (type) {
     case KeyValueType.None:
-      var inner: { [key: string]: KeyValues } | string[] = {};
+      let inner: { [key: string]: KeyValues } | string[] = {};
       type = buffer.readUint8();
       while (type !== KeyValueType.NumTypes) {
-        var name = buffer.readCString();
-        var value = parseValue(type, buffer);
-        if (name == '') {
-          if (typeof value !== 'string')
-            throw 'Expected keyless KeyValues to have string value';
+        let name = buffer.readCString();
+        let value = parseValue(type, buffer);
+        if (name == "") {
+          if (typeof value !== "string") {
+            throw new Error("Expected keyless KeyValues to have string value");
+          }
           if (Array.isArray(inner)) {
             inner.push(value);
           } else {
             inner = [value];
           }
         } else {
-          if (Array.isArray(inner))
-            throw 'Unexpected mix of empty and non-empty keys in KeyValues';
+          if (Array.isArray(inner)) {
+            throw new Error("Unexpected mix of empty and non-empty keys in KeyValues");
+          }
           inner[name] = value;
         }
 
@@ -57,13 +59,13 @@ function parseValue(type: KeyValueType, buffer: ByteBuffer): KeyValues {
     case KeyValueType.Ptr:
       return buffer.readUint32();
     case KeyValueType.WString:
-      throw 'wstring values are not supported';
+      throw new Error("wstring values are not supported");
     case KeyValueType.Color:
       return {
         r: buffer.readUint8(),
         g: buffer.readUint8(),
         b: buffer.readUint8(),
-        a: buffer.readUint8()
+        a: buffer.readUint8(),
       };
     case KeyValueType.UInt64:
       return buffer.readUint64();
@@ -74,13 +76,13 @@ function parseValue(type: KeyValueType, buffer: ByteBuffer): KeyValues {
     case KeyValueType.CompiledInt1:
       return 1;
     default:
-      throw `Invalid KeyValues types ${type}`;
+      throw new Error(`Invalid KeyValues types ${type}`);
   }
 }
 
 export function parseBinaryKeyValues(buffer: ByteBuffer): { [name: string]: KeyValues } {
-  var type = buffer.readUint8();
+  let type = buffer.readUint8();
   return {
-    [buffer.readCString()]: parseValue(type, buffer)
+    [buffer.readCString()]: parseValue(type, buffer),
   };
 }

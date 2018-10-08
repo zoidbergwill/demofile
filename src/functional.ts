@@ -1,6 +1,6 @@
 export function fillUntil<T>(endValue: T, callback: (value: T) => T, initial: T): T[] {
-  var value = initial;
-  var ret = [];
+  let value = initial;
+  let ret = [];
 
   while (true) { // eslint-disable-line no-constant-condition
     value = callback(value);
@@ -10,5 +10,4 @@ export function fillUntil<T>(endValue: T, callback: (value: T) => T, initial: T)
 
     ret.push(value);
   }
-};
-
+}
